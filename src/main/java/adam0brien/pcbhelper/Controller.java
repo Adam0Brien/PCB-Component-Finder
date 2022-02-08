@@ -201,56 +201,24 @@ public class Controller {
 
     public void changeComponentColor(ActionEvent event) {
         processedView.setImage(imagePicked);
-        brightnessSlider.getValue();
-        saturationSlider.getValue();
-
-        double finalHue = getSelectedColor().getHue();                                          //hue
-        double finalSat = getSelectedColor().getSaturation();          //saturation
-        double finalBri = getSelectedColor().getBrightness();       //brightness
-
 
         PixelReader pixelReader = processedView.getImage().getPixelReader();
-        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(), (int) processedView.getImage().getHeight());
+        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(),(int) processedView.getImage().getHeight());
         PixelWriter writer = baW.getPixelWriter();
 
-        Color black = new Color(0, 0, 0, 1);
-        Color white = new Color(1, 1, 1, 1);
-
-        //convert
+        //reading pixels
         for (int i = 0; i < imagePicked.getWidth(); i++) {
             for (int j = 0; j < imagePicked.getHeight(); j++) {
 
                 Color oldColor = pixelReader.getColor(i, j);
 
-
-                //for green PCB's
                 if (oldColor.getGreen() <= oldColor.getRed() + oldColor.getBlue()) {
-                    writer.setColor(i, j, black);
+                        writer.setColor(i, j, Color.BLACK);
                 }
-//                //for blue PCB's
-//                else if(oldColor.getBlue() <= oldColor.getGreen() + oldColor.getRed()) {
-//
-//                    writer.setColor(i,j,black);
-//                }
-//                //for red PBC's
-//                else if(oldColor.getRed() <= oldColor.getBlue()+ oldColor.getGreen()){
-//                    writer.setColor(i,j,black);
-//
-//                }
+
             }
-
-
-                    //find average saturation hue and brightness for integrated circuits resistors LEDs and capacitors
-
-                    //use those values in a series of if statements to change the color of each component so they are easily recognisable
-
-
-                }
-
-                processedView.setImage(baW);
-                setBawImage(baW);
-
-
+        }
+        processedView.setImage(baW);
     }
 
 
