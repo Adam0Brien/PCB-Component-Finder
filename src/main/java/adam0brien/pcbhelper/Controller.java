@@ -74,6 +74,8 @@ public class Controller {
             int height = (int) imageView.getImage().getHeight();
             WritableImage ii = new WritableImage(width, height);
 
+
+
             //convert to grayscale
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
@@ -157,6 +159,7 @@ public class Controller {
         processedView.setEffect(colorAdjust);
 
 
+
     }
 
     public void saturationSlider() {
@@ -212,6 +215,7 @@ public class Controller {
 
                 Color oldColor = pixelReader.getColor(i, j);
 
+
                 if (oldColor.getGreen() <= oldColor.getRed() + oldColor.getBlue()) {
                         writer.setColor(i, j, Color.BLACK);
                 }
@@ -243,4 +247,103 @@ public class Controller {
             setSelectedColor(selectedColor);
         });
     }
+
+
+
+
+    public void findICs(ActionEvent event) {
+        processedView.setImage(imagePicked);
+
+
+        PixelReader pixelReader = processedView.getImage().getPixelReader();
+        Color black = new Color(0, 0, 0, 1);
+        Color white = new Color(1, 1, 1, 1);
+
+
+        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(), (int) processedView.getImage().getHeight());
+        PixelWriter writer = baW.getPixelWriter();
+        for (int i = 0; i < imagePicked.getWidth(); i++) {
+            for (int j = 0; j < imagePicked.getHeight(); j++) {
+                Color oldColor = pixelReader.getColor(i, j);
+
+
+                // if hue/saturation/brightness out of range -> turn black
+                // for black integrated circuits
+
+
+                if (oldColor.getHue() < 30 || oldColor.getHue() > 240) {//.
+                    writer.setColor(i, j, white);
+                } else {
+                    if (oldColor.getSaturation() > .3 || oldColor.getSaturation() < .05) {
+                        writer.setColor(i, j, white);
+                    } else {
+                        if (oldColor.getBrightness() > .40 || oldColor.getBrightness() < .25) {
+                            writer.setColor(i, j, white);
+                        } else {
+                            writer.setColor(i, j, black);
+                        }
+
+                    }
+                }
+
+            }
+
+
+        }
+
+        processedView.setImage(baW);
+        setBawImage(baW);
+    }
+
+
+
+
+
+
+
+
+    public void findLEDS(ActionEvent event) {
+        processedView.setImage(imagePicked);
+
+
+        PixelReader pixelReader = processedView.getImage().getPixelReader();
+        Color white = new Color(1, 1, 1, 1);
+
+
+        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(), (int) processedView.getImage().getHeight());
+        PixelWriter writer = baW.getPixelWriter();
+        for (int i = 0; i < imagePicked.getWidth(); i++) {
+            for (int j = 0; j < imagePicked.getHeight(); j++) {
+                Color oldColor = pixelReader.getColor(i, j);
+
+
+                // if hue/saturation/brightness out of range -> turn orange
+
+                //for orange LEDs / resistors
+                if (oldColor.getHue() < 18 || oldColor.getHue() > 35) {//.
+                    writer.setColor(i, j, white);
+                } else {
+                    if (oldColor.getSaturation() > .85 || oldColor.getSaturation() < .3) {
+                        writer.setColor(i, j, white);
+                    } else {
+                        if (oldColor.getBrightness() > .95 || oldColor.getBrightness() < .65) {
+                            writer.setColor(i, j, white);
+                        } else {
+                            writer.setColor(i, j, Color.ORANGE);
+                        }
+                    }
+                }//.
+
+            }
+
+
+        }
+
+        processedView.setImage(baW);
+        setBawImage(baW);
+    }
 }
+
+
+
+
