@@ -24,7 +24,7 @@ import java.util.Random;
 public class Controller {
 
 
-    ArrayList<ComponentBorder> rectangleNumbers;
+    ArrayList<ComponentBorder> borders;
 
 
     @FXML
@@ -89,13 +89,7 @@ public class Controller {
         this.rectangle = rectangle;
     }
 
-    public int getClusterCounter() {
-        return clusterCounter;
-    }
 
-    public void setClusterCounter(int clusterCounter) {
-        this.clusterCounter = clusterCounter;
-    }
 
     public WritableImage getBaW() {
         return baW;
@@ -312,8 +306,6 @@ public class Controller {
         this.baW = baW;
     }
 
-
-
     public void selectColour(ActionEvent event) throws IOException {
         //gets image colour
 
@@ -492,11 +484,18 @@ public class Controller {
     ArrayList<ComponentBorder> rectangle;
     int[] imageArray;
 
+    /**
+     *
+     * Uses union to get each pixel to join with the upper left-most pixel
+     *
+     */
+
+
     public void process(ActionEvent event) {
-        //create array the size of the width x the height
-        imageArray = new int[(int) imagePicked.getHeight() * (int) imagePicked.getWidth()];
+        //create array the size of the width multiplied by the height
+        imageArray = new int[(int) imagePicked.getHeight() * (int) imagePicked.getWidth()];  //height*width of picture
         Color white = new Color(1, 1, 1, 1);
-        //go through pixel by pixel, if black { -1 }, white { row*width+column }
+        //go through pixel by pixel, if black { -1 },if white { row*width+column }
         PixelReader pixelReader = processedView.getImage().getPixelReader();
         for (int i = 0; i < processedView.getImage().getHeight(); i++) {
             for (int j = 0; j < processedView.getImage().getWidth(); j++) {
@@ -506,7 +505,7 @@ public class Controller {
                     //set white pixel position to the array.
                     imageArray[(i * (int) processedView.getImage().getWidth()) + j] = (i * (int) processedView.getImage().getWidth()) + j;
                 } else
-                    imageArray[(i * (int) processedView.getImage().getWidth()) + j] = -1; //sets black pixels to -1 in the array.
+                    imageArray[(i * (int) processedView.getImage().getWidth()) + j] = -1; //sets black pixels to -1 in the array. could use -2,3,4....-100 it doesn't matter
             }
         }
 
@@ -515,7 +514,7 @@ public class Controller {
             int down;
             if ((data + 1) < imageArray.length) {
                 right = data + 1;
-            } else right = imageArray.length-1;
+            } else right = imageArray.length-1; //goes to the very end +1 then does -1 once you run out of pixels
 
             //checks if down is possible
             if ((data + (int) processedView.getImage().getWidth()) < imageArray.length) {
@@ -531,22 +530,22 @@ public class Controller {
                 }
             }
         }
-        getRectPositions(imageArray);
-        //colourAllDisjointButton.setVisible(true);
+        getRectPositions(imageArray);   // this also calls the draw rectangles method
     }
+
 
     public void getRectPositions(int[] imageArray) {
         ((AnchorPane)finalView.getParent()).getChildren().removeIf(f->f instanceof Rectangle);
         ((AnchorPane)finalView.getParent()).getChildren().removeIf(h->h instanceof Text);
         HashSet<Integer> roots = new HashSet<>();
-        ArrayList<ComponentBorder> rectangleNumbers = new ArrayList<ComponentBorder>();
+        ArrayList<ComponentBorder> border = new ArrayList<>();
 
 
         for(int i = 0; i < imageArray.length; i++) if(imageArray[i] != -1) roots.add(find(imageArray,i));
 
 
         for(int r : roots) {
-            // calculate fruit bounds for every fruit.
+            // calculate component bounds for every component.
             int minX = (int) processedView.getImage().getWidth();
             int minY = (int) processedView.getImage().getHeight();
             int maxX = 0;
@@ -577,33 +576,14 @@ public class Controller {
             // cleanup for outlying, small disjoint sets by finding the area of each disjoint set.
             if ((((maxX-minX)*(maxY - minY)) > 150) && (((maxX-minX)*(maxY - minY)) < 1000000)) {
                 drawRectangles(minX, minY, maxX, maxY);
-                rectangleNumbers.add(new ComponentBorder(r, maxX, minX, maxY, minY, estimateAreaSize(r)));
+                border.add(new ComponentBorder(r, maxX, minX, maxY, minY, estimateAreaSize(r)));
             }
         }
-        drawNumbers(rectangleNumbers);
-        setRectangle(rectangleNumbers);
+        setRectangle(border);
     }
 
 
-    private int clusterCounter;
-    // draws the numbers of
-    public void drawNumbers(ArrayList<ComponentBorder> rectangleNumbers) {
-        clusterCounter = 0;
-        rectangleNumbers.sort(ComponentBorder.AreaComparator);
-        Collections.reverse(rectangleNumbers);
-        for (int i = 0; i < rectangleNumbers.size(); i++) {
-            Text text = new Text(rectangleNumbers.get(i).getMinX(), rectangleNumbers.get(i).getMaxY(), 2+i+"");
-            Text areaText = new Text(rectangleNumbers.get(i).getMinX(), rectangleNumbers.get(i).getMaxY()+15, "Area: "+rectangleNumbers.get(i).getArea()+" pixels");
-            text.setLayoutX(processedView.getLayoutX());
-            text.setLayoutY(processedView.getLayoutY());
-            areaText.setLayoutX(processedView.getLayoutX());
-            areaText.setLayoutY(processedView.getLayoutY());
-            ((AnchorPane) finalView.getParent()).getChildren().add(text);
-            ((AnchorPane) finalView.getParent()).getChildren().add(areaText);
-            clusterCounter++;
-            setClusterCounter(clusterCounter);
-        }
-    }
+
 
     // unions the disjoint sets into bigger ones
     public void union(int[] imageArray, int a, int b) {
@@ -615,6 +595,13 @@ public class Controller {
         if(imageArray[data]==data) return data;
         else return find(imageArray, imageArray[data]);
     }
+    //Recursive version of find  ^^^^^^^
+   /** public static int find2(int[] a, int id) { ^^^
+        if(a[id]==id) return id;
+        else return find2(a,a[id]);
+    }
+    */
+
 
     // creates a rectangle instance and sets the style of having a stroke of blue and adding it to the imageView
     public void drawRectangles(int minX, int minY, int maxX, int maxY) {
