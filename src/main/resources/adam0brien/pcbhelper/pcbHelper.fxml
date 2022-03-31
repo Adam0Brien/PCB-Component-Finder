@@ -11,7 +11,7 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.Font?>
 
-<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="657.0" prefWidth="942.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="adam0brien.pcbhelper.Controller">
+<VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="630.0" prefWidth="931.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="adam0brien.pcbhelper.Controller">
   <children>
     <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="636.0" prefWidth="1000.0" VBox.vgrow="ALWAYS">
          <children>
@@ -68,8 +68,15 @@
                               <Button layoutX="788.0" layoutY="559.0" mnemonicParsing="false" onAction="#reset" text="Reset" />
                               <Button layoutX="769.0" layoutY="329.0" mnemonicParsing="false" onAction="#selectColour" text="Select Color" />
                               <Button layoutX="789.0" layoutY="370.0" mnemonicParsing="false" onAction="#updateNewColor" text="Find" />
-                              <Button layoutX="782.0" layoutY="415.0" mnemonicParsing="false" onAction="#process" text="Process" />
-                              <Button layoutX="757.0" layoutY="524.0" mnemonicParsing="false" text="Color All Clusters" />
+                              <Button layoutX="782.0" layoutY="462.0" mnemonicParsing="false" onAction="#process" text="Process" />
+                              <Button layoutX="757.0" layoutY="524.0" mnemonicParsing="false"  text="Color All Clusters" />
+                              <Button layoutX="58.0" layoutY="403.0" mnemonicParsing="false" onAction="#printImageArray" text="Print Image Array" />
+                              <Line endX="100.0" layoutX="117.0" layoutY="354.0" startX="-100.0" />
+                              <Label layoutX="66.0" layoutY="362.0" text="System Commands" />
+                              <Button layoutX="35.0" layoutY="449.0" mnemonicParsing="false" onAction="#estimateComponents" text="Print Estimated Components" />
+                              <Button layoutX="47.0" layoutY="499.0" mnemonicParsing="false" onAction="#sizeOfEachDisjoint" prefHeight="25.0" prefWidth="140.0" text="Size of each disjoint" />
+                              <Slider fx:id="noiseSlider" blockIncrement="0.0" layoutX="708.0" layoutY="424.0" max="200.0" minorTickCount="0" onMouseDragged="#noiseSlider" prefHeight="38.0" prefWidth="205.0" showTickLabels="true" showTickMarks="true" />
+                              <Label layoutX="767.0" layoutY="403.0" text="Noise Reduction" />
                            </children>
                         </AnchorPane>
                      </content>

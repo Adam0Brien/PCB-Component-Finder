@@ -4,31 +4,28 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.Tooltip;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import javafx.scene.shape.Rectangle;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 
 
 public class Controller {
 
 
-    ArrayList<ComponentBorder> borders;
 
-
+    HashSet<Integer> rootValues = new HashSet<>();
     @FXML
-    ImageView view;
+    public ImageView view;
     @FXML
     ImageView processedView;
     @FXML
@@ -81,15 +78,6 @@ public class Controller {
         this.saturationSlider = saturationSlider;
     }
 
-    public ArrayList<ComponentBorder> getRectangle() {
-        return rectangle;
-    }
-
-    public void setRectangle(ArrayList<ComponentBorder> rectangle) {
-        this.rectangle = rectangle;
-    }
-
-
 
     public WritableImage getBaW() {
         return baW;
@@ -109,7 +97,6 @@ public class Controller {
             Image image = new Image(file.toURI().toString(), view.getFitWidth(), view.getFitHeight(), false, true);
 
             imagePicked = image;
-
 
 
             view.setImage(image);
@@ -278,30 +265,6 @@ public class Controller {
     WritableImage baW;
 
 
-    public void changeComponentColor(ActionEvent event) {
-        processedView.setImage(imagePicked);
-
-        PixelReader pixelReader = processedView.getImage().getPixelReader();
-        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(),(int) processedView.getImage().getHeight());
-        PixelWriter writer = baW.getPixelWriter();
-
-        //reading pixels
-        for (int i = 0; i < imagePicked.getWidth(); i++) {
-            for (int j = 0; j < imagePicked.getHeight(); j++) {
-
-                Color oldColor = pixelReader.getColor(i, j);
-
-
-                if (oldColor.getGreen() <= oldColor.getRed() + oldColor.getBlue()) {
-                        writer.setColor(i, j, Color.BLACK);
-                }
-
-            }
-        }
-        processedView.setImage(baW);
-    }
-
-
     private void setBawImage(WritableImage baW) {
         this.baW = baW;
     }
@@ -322,116 +285,9 @@ public class Controller {
 
 
             setSelectedColor(selectedColor);
+            drawSmallRectangles((int)e.getX()-5,(int)e.getY()-5,(int)e.getX()+5,(int)e.getY()+5);
         });
     }
-
-
-
-
-    public void findICs(ActionEvent event) {
-        processedView.setImage(imagePicked);
-
-
-        PixelReader pixelReader = processedView.getImage().getPixelReader();
-        Color black = new Color(0, 0, 0, 1);
-        Color white = new Color(1, 1, 1, 1);
-
-
-        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(), (int) processedView.getImage().getHeight());
-        PixelWriter writer = baW.getPixelWriter();
-        for (int i = 0; i < imagePicked.getWidth(); i++) {
-            for (int j = 0; j < imagePicked.getHeight(); j++) {
-                Color oldColor = pixelReader.getColor(i, j);
-
-
-                // if hue/saturation/brightness out of range -> turn black
-                // for black integrated circuits
-
-
-                if (oldColor.getHue() < 30 || oldColor.getHue() > 240){//.
-                    writer.setColor(i, j, white);
-
-                } else {
-                    if (oldColor.getSaturation() > .3 || oldColor.getSaturation() < .05) {
-                        writer.setColor(i, j, white);
-                    } else {
-                        if (oldColor.getBrightness() > .40 || oldColor.getBrightness() < .25) {
-                            writer.setColor(i, j, white);
-                        } else {
-                            writer.setColor(i, j, black);
-                        }
-
-                    }
-                }
-
-            }
-
-
-        }
-
-        processedView.setImage(baW);
-        setBawImage(baW);
-    }
-
-
-
-
-
-
-
-
-    public void findLEDS(ActionEvent event) {
-        processedView.setImage(imagePicked);
-
-
-        PixelReader pixelReader = processedView.getImage().getPixelReader();
-        Color white = new Color(1, 1, 1, 1);
-        Color black = new Color(0,0,0,1);
-
-
-//        double selectedHue = getSelectedColor().getHue();                                          //hue
-//        double selectedSat = (saturationSlider.getValue() * getSelectedColor().getSaturation());          //saturation
-//        double selectedBri = (brightnessSlider.getValue() * getSelectedColor().getBrightness());       //brightness
-
-
-
-
-        WritableImage baW = new WritableImage((int) processedView.getImage().getWidth(), (int) processedView.getImage().getHeight());
-        PixelWriter writer = baW.getPixelWriter();
-        for (int i = 0; i < imagePicked.getWidth(); i++) {
-            for (int j = 0; j < imagePicked.getHeight(); j++) {
-                Color oldColor = pixelReader.getColor(i, j);
-
-
-
-                //for orange LEDs / resistors
-               // if (selectedHue < 18 || selectedHue > 35) {
-                    if (oldColor.getHue() < 18 || oldColor.getHue() > 35) {//.
-                        writer.setColor(i, j, white);
-                    } else {
-                        if (oldColor.getSaturation() > .85 || oldColor.getSaturation() < .3) {
-                            writer.setColor(i, j, white);
-                        } else {
-                            if (oldColor.getBrightness() > .95 || oldColor.getBrightness() < .65) {
-                                writer.setColor(i, j, white);
-                            } else {
-                                writer.setColor(i, j, Color.ORANGE);
-                            }
-                        }
-                    }
-
-                }//.
-          //  }
-
-
-        }
-
-        processedView.setImage(baW);
-        setBawImage(baW);
-
-    }
-
-
 
 
     public void updateNewColor(ActionEvent event) {
@@ -464,11 +320,27 @@ public class Controller {
                                 writer.setColor(i, j, black);
                             } else {
                                 writer.setColor(i, j, white);
+
                             }
                         }
                     }
+                }else if (((oldColor.getHue() >= selectedHue) && (selectedHue < 18) && (oldColor.getHue() < 35)) || (oldColor.getHue() <= selectedHue - 20) && (selectedHue > 35) && (oldColor.getHue() > 18)) {
+                    writer.setColor(i, j, black);
+                } else {
+                    if (oldColor.getSaturation() <= selectedSat - .55 || oldColor.getSaturation() >= selectedSat + .55) {
+                        writer.setColor(i, j, black);
+                    } else {
+                        if (oldColor.getBrightness() <= selectedBrightness - 0.80 || oldColor.getBrightness() >= selectedBrightness + 0.80) {
+                            writer.setColor(i, j, black);
+                        } else {
+                            writer.setColor(i, j, white);
+                        }
+                    }
                 }
+
+
             }
+
         }
         processedView.setImage(baW);
         setBawImage(baW);
@@ -476,12 +348,6 @@ public class Controller {
     }
 
 
-
-
-    //Below this line is code i need to study
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    ArrayList<ComponentBorder> rectangle;
     int[] imageArray;
 
     /**
@@ -489,7 +355,6 @@ public class Controller {
      * Uses union to get each pixel to join with the upper left-most pixel
      *
      */
-
 
     public void process(ActionEvent event) {
         //create array the size of the width multiplied by the height
@@ -508,21 +373,27 @@ public class Controller {
                     imageArray[(i * (int) processedView.getImage().getWidth()) + j] = -1; //sets black pixels to -1 in the array. could use -2,3,4....-100 it doesn't matter
             }
         }
-
+        int right;
+        int down;
         for (int data = 0; data < imageArray.length; data++) {
-            int right;
-            int down;
+
             if ((data + 1) < imageArray.length) {
                 right = data + 1;
-            } else right = imageArray.length-1; //goes to the very end +1 then does -1 once you run out of pixels
+            } else{
+                right = imageArray.length-1; //goes to the very end +1 then does -1 once you run out of pixels
+            }
 
             //checks if down is possible
             if ((data + (int) processedView.getImage().getWidth()) < imageArray.length) {
                 down = data + (int) processedView.getImage().getWidth();
-            } else down = imageArray.length-1;
+            } else{
+                down = imageArray.length-1;
+            }
 
+
+            //unions all data that is not -1
             if (imageArray[data] > -1) {
-                if(down < imageArray.length && imageArray[down] > -1) {
+                if(down < imageArray.length && imageArray[down] > -1) { //
                     union(imageArray, data, down);
                 }
                 if(right < imageArray.length && imageArray[right] > -1 ) {
@@ -530,21 +401,58 @@ public class Controller {
                 }
             }
         }
-        getRectPositions(imageArray);   // this also calls the draw rectangles method
+
+
+
+        getRectPositions(imageArray);
+
+
+
+
+
+
+    }
+
+
+    int noiseReduction = 0;
+
+    @FXML
+    Slider noiseSlider;
+
+    public Slider getNoiseSlider() {
+        return noiseSlider;
+    }
+
+    public void setNoiseSlider(Slider noiseSlider) {
+        this.noiseSlider = noiseSlider;
+    }
+
+    public void noiseChanger(double value) {
+
+            noiseReduction = (int) noiseSlider.getValue();
+
+    }
+
+
+    public void noiseSlider() {
+        noiseChanger(noiseSlider.getValue());
     }
 
 
     public void getRectPositions(int[] imageArray) {
-        ((AnchorPane)finalView.getParent()).getChildren().removeIf(f->f instanceof Rectangle);
-        ((AnchorPane)finalView.getParent()).getChildren().removeIf(h->h instanceof Text);
-        HashSet<Integer> roots = new HashSet<>();
-        ArrayList<ComponentBorder> border = new ArrayList<>();
+        ((AnchorPane)finalView.getParent()).getChildren().removeIf(r->r instanceof Rectangle);
+        ((AnchorPane)finalView.getParent()).getChildren().removeIf(t->t instanceof Text);
 
 
-        for(int i = 0; i < imageArray.length; i++) if(imageArray[i] != -1) roots.add(find(imageArray,i));
-
-
-        for(int r : roots) {
+        //uses recursive find to get all the first instances of an element NOT being -1
+        // in the image and adds them to the hashset roots
+        for(int i = 0; i < imageArray.length; i++){
+            if(imageArray[i] != -1){
+                rootValues.add(find(imageArray,i));
+            }
+        }
+        //hashset rootValues is now going to be referenced by rootValue
+        for(int rootValue : rootValues) {
             // calculate component bounds for every component.
             int minX = (int) processedView.getImage().getWidth();
             int minY = (int) processedView.getImage().getHeight();
@@ -553,33 +461,28 @@ public class Controller {
 
             for (int i = 0; i < imageArray.length; i++) {
                 if (imageArray[i] != -1) {
-                    int r2 = find(imageArray, i);
-                    if (r == r2) {
-                        int rx = i % (int) processedView.getImage().getWidth();
-                        int ry = i / (int) processedView.getImage().getWidth();
-                        if (rx < minX) {
-                            minX = rx;
-                        }
-                        if (ry < minY) {
-                            minY = ry;
-                        }
-                        if (rx > maxX) {
-                            maxX = rx;
-                        }
-                        if (ry > maxY) {
-                            maxY = ry;
-                        }
+                    int root = find(imageArray, i);
+
+                    if (rootValue == root) {
+                        int rootX = i % (int) processedView.getImage().getWidth();
+                        int rootY = i / (int) processedView.getImage().getWidth();
+
+                        if (rootX < minX) minX = rootX;
+                        if (rootY < minY) minY = rootY;
+                        if (rootX > maxX) maxX = rootX;
+                        if (rootY > maxY) maxY = rootY;
                     }
                 }
             }
 
-            // cleanup for outlying, small disjoint sets by finding the area of each disjoint set.
-            if ((((maxX-minX)*(maxY - minY)) > 150) && (((maxX-minX)*(maxY - minY)) < 1000000)) {
-                drawRectangles(minX, minY, maxX, maxY);
-                border.add(new ComponentBorder(r, maxX, minX, maxY, minY, estimateAreaSize(r)));
-            }
+            /**
+             * Noise Reduction
+             */
+            // cleans up any loose pixels that may have accidentally formed a disjoint set by coincidence
+            if ((((maxX - minX)*(maxY - minY)) > noiseReduction)) drawRectangles(minX, minY, maxX, maxY);
+
         }
-        setRectangle(border);
+
     }
 
 
@@ -587,23 +490,30 @@ public class Controller {
 
     // unions the disjoint sets into bigger ones
     public void union(int[] imageArray, int a, int b) {
-        imageArray[find(imageArray,b)]=find(imageArray,a); //makes the root of b made to reference a
+        imageArray[find(imageArray,b)]=find(imageArray,a); //The root of b is made reference a
     }
 
     // finds the root of each of the pixels
     public int find(int[] imageArray, int data) {
-        if(imageArray[data]==data) return data;
-        else return find(imageArray, imageArray[data]);
+        if(imageArray[data]==data) {
+            return data;
+        }
+        else{
+            return find(imageArray, imageArray[data]);
+        }
     }
     //Recursive version of find  ^^^^^^^
-   /** public static int find2(int[] a, int id) { ^^^
-        if(a[id]==id) return id;
-        else return find2(a,a[id]);
-    }
-    */
 
 
-    // creates a rectangle instance and sets the style of having a stroke of blue and adding it to the imageView
+
+
+
+    // adds rectangles around components
+
+
+
+    LinkedList rectangles = new LinkedList();
+    LinkedList rectangleSize = new LinkedList();
     public void drawRectangles(int minX, int minY, int maxX, int maxY) {
         Rectangle rect = new Rectangle(minX, minY, maxX-minX, maxY-minY);
         rect.setFill(Color.TRANSPARENT);
@@ -612,18 +522,50 @@ public class Controller {
         rect.setLayoutX(processedView.getLayoutX());
         rect.setLayoutY(processedView.getLayoutY());
         ((AnchorPane)finalView.getParent()).getChildren().add(rect);
+
+
+        double rectangle = rect.getHeight() * rect.getWidth();
+
+
+        //System.out.println("Size : " + rectangleSize);
+
+        rectangles.add(rectangle);
+        //Collections.sort(rectangles);
+        for (int i = 0;i < rectangles.size(); i++) {
+
+            Tooltip.install(rect, new Tooltip("Component Number: " + (i + 1) + "\nCluster Size : " + rectangles.get(i)));
+        }
+
     }
 
 
-    // estimates the cluster area size for each of cluster (white pixels in a cluster)
-    public int estimateAreaSize(int r) {
-        int areaCounter = 0;
-        for (int j : imageArray) {
-            if (r == j) {
-                areaCounter++;
-            }
-        }
-        return areaCounter;
+    // adds rectangles around components  //used for pointer rectangle
+    public void drawSmallRectangles(int minX, int minY, int maxX, int maxY) {
+        Rectangle rect = new Rectangle(minX, minY, maxX-minX, maxY-minY);
+        rect.setFill(Color.TRANSPARENT);
+        rect.setStroke(Color.RED);
+        rect.setStrokeWidth(2);
+        rect.setLayoutX(processedView.getLayoutX());
+        rect.setLayoutY(processedView.getLayoutY());
+        ((AnchorPane)processedView.getParent()).getChildren().add(rect);
+    }
+
+    public void printImageArray(ActionEvent event){
+        System.out.println(Arrays.toString(imageArray));
+    }
+
+    public void estimateComponents() {
+
+        System.out.println(Utilities.diffValues(imageArray) -1);  //https://stackoverflow.com/questions/32444193/count-different-values-in-array-in-java
+
+    }
+
+
+
+    public void sizeOfEachDisjoint(ActionEvent event){
+        System.out.println(rootValues.size());
     }
 
 }
+
+

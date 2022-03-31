@@ -13,4 +13,9 @@
       <module name="pcbHelper" target="11" />
     </bytecodeTargetLevel>
   </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="pcbHelper" options="--add-exports jdk.hotspot.agent/sun.jvm.hotspot.runtime=adam0brien.pcbhelper --add-exports jdk.compiler/com.sun.tools.doclint=ALL-UNNAMED" />
+    </option>
+  </component>
 </project>
