@@ -23,6 +23,7 @@ public class Controller {
 
 
 
+
     HashSet<Integer> rootValues = new HashSet<>();
     @FXML
     public ImageView view;
@@ -39,6 +40,8 @@ public class Controller {
     Label fileName1;
     @FXML
     Label fileSize1;
+
+
 
     /**
      *
@@ -479,7 +482,11 @@ public class Controller {
              * Noise Reduction
              */
             // cleans up any loose pixels that may have accidentally formed a disjoint set by coincidence
-            if ((((maxX - minX)*(maxY - minY)) > noiseReduction)) drawRectangles(minX, minY, maxX, maxY);
+            if ((((maxX - minX)*(maxY - minY)) > noiseReduction)) {
+                drawRectangles(minX, minY, maxX, maxY);
+
+
+            }
 
         }
 
@@ -513,7 +520,6 @@ public class Controller {
 
 
     LinkedList rectangles = new LinkedList();
-    LinkedList rectangleSize = new LinkedList();
     public void drawRectangles(int minX, int minY, int maxX, int maxY) {
         Rectangle rect = new Rectangle(minX, minY, maxX-minX, maxY-minY);
         rect.setFill(Color.TRANSPARENT);
@@ -530,9 +536,14 @@ public class Controller {
         //System.out.println("Size : " + rectangleSize);
 
         rectangles.add(rectangle);
-        //Collections.sort(rectangles);
+
+        Collections.sort(rectangles);
+        Collections.reverse(rectangles);
+
+
         for (int i = 0;i < rectangles.size(); i++) {
 
+            System.out.println(rectangles.get(i));
             Tooltip.install(rect, new Tooltip("Component Number: " + (i + 1) + "\nCluster Size : " + rectangles.get(i)));
         }
 
